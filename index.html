@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Donut Shop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f3f2;
+        }
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .input-field {
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            width: 100%;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-primary {
+            background-color: #f97316;
+        }
+        .btn-primary:hover {
+            background-color: #ea580c;
+        }
+        .btn-secondary {
+            background-color: #e5e7eb;
+            color: #4b5563;
+        }
+        .btn-secondary:hover {
+            background-color: #d1d5db;
+        }
+        .item-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 1rem;
+            text-align: center;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .item-card:hover {
+            transform: translateY(-5px);
+        }
+        .item-card.selected {
+            border-color: #f97316;
+            box-shadow: 0 0 0 3px #f97316;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="container text-center">
+        <img src="https://placehold.co/150x150/f97316/ffffff?text=The+Donut+Shop" alt="The Donut Shop Logo" class="mx-auto mb-4 rounded-full">
+        <h1 class="text-3xl font-bold text-gray-800">The Donut Shop</h1>
+        <p class="text-gray-500 mb-6">Please log in to continue.</p>
+        <form id="loginForm" class="space-y-4 max-w-sm mx-auto">
+            <div>
+                <input type="text" id="username" class="input-field" placeholder="Username (e.g., admin)" required>
+            </div>
+            <div>
+                <input type="password" id="password" class="input-field" placeholder="Password (e.g., password)" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-full">Login</button>
+        </form>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" class="hidden">
+        <!-- Order Screen -->
+        <div id="orderScreen" class="container">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800">Choose Your Donuts</h1>
+                <button id="logoutBtn" class="btn btn-secondary text-sm">Logout</button>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="donutMenu">
+                <!-- Donut items will be dynamically added here -->
+            </div>
+            <div class="flex justify-between items-center mt-6">
+                <h2 class="text-2xl font-bold text-gray-800">Total: <span id="totalPrice">$0.00</span></h2>
+                <div class="flex space-x-2">
+                    <button id="showHistoryBtn" class="btn btn-secondary">Show Bills</button>
+                    <button id="nextBtn" class="btn btn-primary">Next</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Info Screen -->
+        <div id="customerInfoScreen" class="container hidden">
+            <h1 class="text-3xl font-bold text-gray-800 mb-6">Customer Information</h1>
+            <form id="customerForm" class="space-y-6">
+                <div>
+                    <label for="customerName" class="block text-gray-700 font-medium mb-1">Customer Name</label>
+                    <input type="text" id="customerName" class="input-field" placeholder="Enter customer name" required>
+                </div>
+                <div>
+                    <label for="customerEmail" class="block text-gray-700 font-medium mb-1">Customer Email</label>
+                    <input type="email" id="customerEmail" class="input-field" placeholder="Enter customer email" required>
+                </div>
+                <div>
+                    <label for="customerPhone" class="block text-gray-700 font-medium mb-1">Customer Phone Number</label>
+                    <input type="tel" id="customerPhone" class="input-field" placeholder="Enter customer phone" required>
+                </div>
+                <div class="flex justify-between items-center mt-6">
+                    <button type="button" id="backToOrderBtn" class="btn btn-secondary">Back</button>
+                    <button type="button" id="nextToSummaryBtn" class="btn btn-primary">Next</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Bill Summary Screen -->
+        <div id="summaryScreen" class="container hidden">
+            <h1 class="text-3xl font-bold text-gray-800 mb-6">Order Summary</h1>
+            <div class="space-y-4">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Customer Details</h2>
+                    <p class="text-gray-700"><span class="font-bold">Name:</span> <span id="summaryName"></span></p>
+                    <p class="text-gray-700"><span class="font-bold">Email:</span> <span id="summaryEmail"></span></p>
+                    <p class="text-gray-700"><span class="font-bold">Phone:</span> <span id="summaryPhone"></span></p>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Order Details</h2>
+                    <div id="summaryItems" class="space-y-2 mt-2"></div>
+                </div>
+            </div>
+            <div class="flex justify-between items-center mt-6">
+                <h2 class="text-2xl font-bold text-gray-800">Grand Total: <span id="grandTotalSummary">$0.00</span></h2>
+            </div>
+            <div class="flex justify-between items-center mt-6">
+                <button type="button" id="backToCustomerBtn" class="btn btn-secondary">Back</button>
+                <button type="button" id="generateBillBtn" class="btn btn-primary">Generate Bill & Send</button>
+            </div>
+        </div>
+
+        <!-- Bill History Screen -->
+        <div id="historyScreen" class="container hidden">
+            <h1 class="text-3xl font-bold text-gray-800 mb-6">Bill History</h1>
+            <button id="backToMainBtn" class="btn btn-secondary mb-4">Back</button>
+            <button id="fetchBillsBtn" class="btn btn-primary mb-4">Show All Bills</button>
+            
+            <div id="historyTableContainer" class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="billsTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Bill rows will be dynamically added here -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="historyStatusMessage" class="mt-4 p-4 text-center rounded-lg font-bold hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        // =========================================================================
+        // IMPORTANT CONFIGURATION
+        // =========================================================================
+        
+        // 1. n8n Webhook URL:
+        //    Replace 'YOUR_N8N_WEBHOOK_URL_HERE' with the actual Webhook URL from your n8n workflow.
+        //    This is the URL that receives the bill data from the form.
+        const n8nWebhookUrl = 'YOUR_N8N_WEBHOOK_URL_HERE';
+
+        // 2. Google Sheets API URL (for Bill History)
+        //    To get this URL, you need to create a simple Google Apps Script that serves
+        //    your Google Sheet as a JSON endpoint.
+        //    Instructions:
+        //    a. In your Google Sheet, go to Extensions > Apps Script.
+        //    b. Paste the following code into the editor:
+        //
+        //       function doGet(e) {
+        //         var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+        //         var data = sheet.getDataRange().getValues();
+        //         var headers = data.shift();
+        //         var json = data.map(function(row) {
+        //           var obj = {};
+        //           headers.forEach(function(header, i) {
+        //             obj[header] = row[i];
+        //           });
+        //           return obj;
+        //         });
+        //         return ContentService.createTextOutput(JSON.stringify(json)).setMimeType(ContentService.MimeType.JSON);
+        //       }
+        //
+        //    c. Save the script. Go to Deploy > New deployment. Select "Web app".
+        //    d. Set "Execute as" to "Me" and "Who has access" to "Anyone".
+        //    e. Click "Deploy" and copy the provided Web App URL. Paste it below.
+        const googleSheetsApiUrl = 'YOUR_GOOGLE_SHEETS_API_URL_HERE';
+
+        // =========================================================================
+        // PROTOTYPE LOGIC
+        // =========================================================================
+
+        const appState = {
+            currentScreen: 'login',
+            orderItems: {},
+            customer: {
+                name: '',
+                email: '',
+                phone: ''
+            }
+        };
+
+        const donutPrices = {
+            "Glazed Donut": 1.50,
+            "Chocolate Donut": 1.75,
+            "Strawberry Frosted": 2.00,
+            "Boston Kreme": 2.25,
+            "Jelly Donut": 2.00,
+            "Cruller": 2.50
+        };
+
+        const donutImages = {
+            "Glazed Donut": 'assets/img/glazed.png',
+            "Chocolate Donut": 'assets/img/chocolate.png',
+            "Strawberry Frosted": 'assets/img/strawberry.png',
+            "Boston Kreme": 'assets/img/bostonkreme.png',
+            "Jelly Donut": 'assets/img/jelly.png',
+            "Cruller": 'assets/img/cruller.png',
+        };
+
+        const screens = {
+            login: document.getElementById('loginScreen'),
+            order: document.getElementById('orderScreen'),
+            customerInfo: document.getElementById('customerInfoScreen'),
+            summary: document.getElementById('summaryScreen'),
+            history: document.getElementById('historyScreen')
+        };
+        const mainContent = document.getElementById('mainContent');
+
+        // UI Elements
+        const loginForm = document.getElementById('loginForm');
+        const donutMenu = document.getElementById('donutMenu');
+        const totalPriceEl = document.getElementById('totalPrice');
+        const customerForm = document.getElementById('customerForm');
+        const summaryNameEl = document.getElementById('summaryName');
+        const summaryEmailEl = document.getElementById('summaryEmail');
+        const summaryPhoneEl = document.getElementById('summaryPhone');
+        const summaryItemsEl = document.getElementById('summaryItems');
+        const grandTotalSummaryEl = document.getElementById('grandTotalSummary');
+        const historyTableBody = document.getElementById('billsTableBody');
+        const historyStatusMessageEl = document.getElementById('historyStatusMessage');
+
+        // Navigation Buttons
+        const logoutBtn = document.getElementById('logoutBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const backToOrderBtn = document.getElementById('backToOrderBtn');
+        const nextToSummaryBtn = document.getElementById('nextToSummaryBtn');
+        const backToCustomerBtn = document.getElementById('backToCustomerBtn');
+        const backToMainBtn = document.getElementById('backToMainBtn');
+        const generateBillBtn = document.getElementById('generateBillBtn');
+        const showHistoryBtn = document.getElementById('showHistoryBtn');
+        const fetchBillsBtn = document.getElementById('fetchBillsBtn');
+
+        function showScreen(screenId) {
+            Object.values(screens).forEach(screen => screen.classList.add('hidden'));
+            if (screenId === 'login') {
+                screens.login.classList.remove('hidden');
+                mainContent.classList.add('hidden');
+            } else {
+                screens[screenId].classList.remove('hidden');
+                mainContent.classList.remove('hidden');
+            }
+        }
+
+        function updateTotals() {
+            let total = 0;
+            for (const item in appState.orderItems) {
+                const quantity = appState.orderItems[item];
+                const price = donutPrices[item] || 0;
+                total += quantity * price;
+            }
+            totalPriceEl.textContent = `$${total.toFixed(2)}`;
+            return total;
+        }
+
+        function renderDonutMenu() {
+            donutMenu.innerHTML = '';
+            for (const name in donutPrices) {
+                const price = donutPrices[name];
+                const imageSrc = donutImages[name] || 'https://placehold.co/150x150/f97316/ffffff?text=Donut';
+                const card = document.createElement('div');
+                card.classList.add('item-card', 'space-y-2', 'relative');
+                card.innerHTML = `
+                    <img src="${imageSrc}" onerror="this.src='https://placehold.co/150x150/f97316/ffffff?text=${encodeURIComponent(name.replace(' ', '+'))}'" alt="${name}" class="w-full h-32 object-cover rounded-md mb-2">
+                    <p class="font-bold text-gray-800">${name}</p>
+                    <p class="text-sm text-gray-500">$${price.toFixed(2)}</p>
+                    <div class="flex items-center justify-center space-x-2">
+                        <button class="quantity-btn p-2 rounded-full bg-gray-200 hover:bg-gray-300" data-name="${name}" data-action="decrease">-</button>
+                        <span class="quantity-display font-medium text-gray-700 w-8">${appState.orderItems[name] || 0}</span>
+                        <button class="quantity-btn p-2 rounded-full bg-gray-200 hover:bg-gray-300" data-name="${name}" data-action="increase">+</button>
+                    </div>
+                `;
+                donutMenu.appendChild(card);
+            }
+        }
+
+        function renderSummary() {
+            summaryNameEl.textContent = appState.customer.name;
+            summaryEmailEl.textContent = appState.customer.email;
+            summaryPhoneEl.textContent = appState.customer.phone;
+
+            summaryItemsEl.innerHTML = '';
+            for (const name in appState.orderItems) {
+                const quantity = appState.orderItems[name];
+                const pricePerUnit = donutPrices[name];
+                const totalPrice = quantity * pricePerUnit;
+                if (quantity > 0) {
+                    const itemEl = document.createElement('p');
+                    itemEl.classList.add('text-gray-700');
+                    itemEl.innerHTML = `<span class="font-medium">${name}</span> - ${quantity} x $${pricePerUnit.toFixed(2)} = <span class="font-bold">$${totalPrice.toFixed(2)}</span>`;
+                    summaryItemsEl.appendChild(itemEl);
+                }
+            }
+            grandTotalSummaryEl.textContent = `$${updateTotals().toFixed(2)}`;
+        }
+
+        async function fetchAndRenderBills() {
+            historyStatusMessageEl.classList.remove('hidden');
+            historyStatusMessageEl.textContent = 'Fetching bills...';
+            historyStatusMessageEl.classList.add('text-gray-600', 'bg-gray-100');
+            historyTableBody.innerHTML = '';
+            fetchBillsBtn.disabled = true;
+
+            try {
+                if (googleSheetsApiUrl === 'YOUR_GOOGLE_SHEETS_API_URL_HERE') {
+                    throw new Error("Google Sheets API URL is not configured. Please follow the instructions in the code.");
+                }
+                const response = await fetch(googleSheetsApiUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const bills = await response.json();
+                
+                if (bills.length === 0) {
+                    historyStatusMessageEl.textContent = 'No bills found.';
+                    historyStatusMessageEl.classList.remove('text-gray-600', 'bg-gray-100');
+                } else {
+                    bills.forEach(bill => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${new Date(bill.orderDate).toLocaleDateString()}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${bill.customerName}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${bill.items.length} items</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$${parseFloat(bill.total).toFixed(2)}</td>
+                        `;
+                        historyTableBody.appendChild(row);
+                    });
+                    historyStatusMessageEl.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Error fetching bills:', error);
+                historyStatusMessageEl.textContent = `Error fetching bills: ${error.message}`;
+                historyStatusMessageEl.classList.remove('text-gray-600', 'bg-gray-100');
+                historyStatusMessageEl.classList.add('bg-red-100', 'text-red-700');
+            } finally {
+                fetchBillsBtn.disabled = false;
+            }
+        }
+
+        // Event Listeners
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            showScreen('order');
+            renderDonutMenu();
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            appState.orderItems = {};
+            appState.customer = { name: '', email: '', phone: '' };
+            renderDonutMenu();
+            showScreen('login');
+        });
+        
+        showHistoryBtn.addEventListener('click', () => {
+            showScreen('history');
+        });
+        
+        backToMainBtn.addEventListener('click', () => {
+            showScreen('order');
+        });
+
+        donutMenu.addEventListener('click', (e) => {
+            const btn = e.target.closest('.quantity-btn');
+            if (!btn) return;
+            
+            const name = btn.dataset.name;
+            const action = btn.dataset.action;
+            const currentQuantity = appState.orderItems[name] || 0;
+            
+            if (action === 'increase') {
+                appState.orderItems[name] = currentQuantity + 1;
+            } else if (action === 'decrease' && currentQuantity > 0) {
+                appState.orderItems[name] = currentQuantity - 1;
+            }
+            
+            if (appState.orderItems[name] === 0) {
+                delete appState.orderItems[name];
+            }
+            
+            updateTotals();
+            renderDonutMenu();
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (Object.keys(appState.orderItems).length === 0) {
+                alert('Please add at least one donut to your order.');
+                return;
+            }
+            showScreen('customerInfo');
+        });
+
+        backToOrderBtn.addEventListener('click', () => {
+            showScreen('order');
+        });
+
+        nextToSummaryBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const customerName = document.getElementById('customerName').value;
+            const customerEmail = document.getElementById('customerEmail').value;
+            const customerPhone = document.getElementById('customerPhone').value;
+            
+            if (customerName && customerEmail && customerPhone) {
+                appState.customer = { name: customerName, email: customerEmail, phone: customerPhone };
+                renderSummary();
+                showScreen('summary');
+            } else {
+                alert('Please fill in all customer information.');
+            }
+        });
+
+        backToCustomerBtn.addEventListener('click', () => {
+            showScreen('customerInfo');
+        });
+
+        generateBillBtn.addEventListener('click', async () => {
+            generateBillBtn.textContent = 'Sending...';
+            generateBillBtn.disabled = true;
+
+            const payload = {
+                customerName: appState.customer.name,
+                customerEmail: appState.customer.email,
+                customerPhone: appState.customer.phone,
+                items: Object.keys(appState.orderItems).map(name => ({
+                    name,
+                    quantity: appState.orderItems[name],
+                    price: donutPrices[name]
+                })),
+                total: updateTotals(),
+                orderDate: new Date().toISOString()
+            };
+
+            console.log("Sending payload:", payload);
+
+            try {
+                if (n8nWebhookUrl === 'YOUR_N8N_WEBHOOK_URL_HERE') {
+                    throw new Error("Please configure your n8n webhook URL.");
+                }
+                
+                const response = await fetch(n8nWebhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    alert('Bill sent successfully!');
+                    // Reset to order screen for a new bill
+                    appState.orderItems = {};
+                    updateTotals();
+                    renderDonutMenu();
+                    showScreen('order');
+                } else {
+                    const errorText = await response.text();
+                    console.error("Webhook failed:", response.status, errorText);
+                    alert(`Failed to send bill. Status: ${response.status}. See console for details.`);
+                }
+            } catch (error) {
+                console.error('Error sending bill:', error);
+                alert(`Error: ${error.message}`);
+            } finally {
+                generateBillBtn.textContent = 'Generate Bill & Send';
+                generateBillBtn.disabled = false;
+            }
+        });
+
+        fetchBillsBtn.addEventListener('click', fetchAndRenderBills);
+        
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            showScreen('login');
+        });
+
+    </script>
+
+</body>
+</html>
