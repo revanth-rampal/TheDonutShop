@@ -98,7 +98,7 @@
             <div class="flex justify-between items-center mt-6">
                 <h2 class="text-2xl font-bold text-gray-800">Total: <span id="totalPrice">$0.00</span></h2>
                 <div class="flex space-x-2">
-                    <button id="showHistoryBtn" class="btn btn-secondary">Show Bills</button>
+                    
                     <button id="nextBtn" class="btn btn-primary">Next</button>
                 </div>
             </div>
@@ -152,28 +152,7 @@
         </div>
 
         <!-- Bill History Screen -->
-        <div id="historyScreen" class="container hidden">
-            <h1 class="text-3xl font-bold text-gray-800 mb-6">Bill History</h1>
-            <button id="backToMainBtn" class="btn btn-secondary mb-4">Back</button>
-            <button id="fetchBillsBtn" class="btn btn-primary mb-4">Show All Bills</button>
-            
-            <div id="historyTableContainer" class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Name</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="billsTableBody" class="bg-white divide-y divide-gray-200">
-                        <!-- Bill rows will be dynamically added here -->
-                    </tbody>
-                </table>
-            </div>
-            <div id="historyStatusMessage" class="mt-4 p-4 text-center rounded-lg font-bold hidden"></div>
-        </div>
+        
     </div>
 
     <script>
@@ -210,7 +189,7 @@
         //    c. Save the script. Go to Deploy > New deployment. Select "Web app".
         //    d. Set "Execute as" to "Me" and "Who has access" to "Anyone".
         //    e. Click "Deploy" and copy the provided Web App URL. Paste it below.
-        const googleSheetsApiUrl = 'https://script.google.com/macros/s/AKfycbwHQXiW1MLxCr3_k-MdLj4Fpd9RollzriE2oZwZkPXfU3fEDOSwMX1T8gjLdSdTpKu7-Q/exec';
+        const googleSheetsApiUrl = '';
 
         // =========================================================================
         // PROTOTYPE LOGIC
@@ -249,7 +228,7 @@
             order: document.getElementById('orderScreen'),
             customerInfo: document.getElementById('customerInfoScreen'),
             summary: document.getElementById('summaryScreen'),
-            history: document.getElementById('historyScreen')
+            
         };
         const mainContent = document.getElementById('mainContent');
 
@@ -263,8 +242,8 @@
         const summaryPhoneEl = document.getElementById('summaryPhone');
         const summaryItemsEl = document.getElementById('summaryItems');
         const grandTotalSummaryEl = document.getElementById('grandTotalSummary');
-        const historyTableBody = document.getElementById('billsTableBody');
-        const historyStatusMessageEl = document.getElementById('historyStatusMessage');
+        
+        
 
         // Navigation Buttons
         const logoutBtn = document.getElementById('logoutBtn');
@@ -272,10 +251,8 @@
         const backToOrderBtn = document.getElementById('backToOrderBtn');
         const nextToSummaryBtn = document.getElementById('nextToSummaryBtn');
         const backToCustomerBtn = document.getElementById('backToCustomerBtn');
-        const backToMainBtn = document.getElementById('backToMainBtn');
         const generateBillBtn = document.getElementById('generateBillBtn');
-        const showHistoryBtn = document.getElementById('showHistoryBtn');
-        const fetchBillsBtn = document.getElementById('fetchBillsBtn');
+        
 
         function showScreen(screenId) {
             Object.values(screens).forEach(screen => screen.classList.add('hidden'));
@@ -340,52 +317,7 @@
             grandTotalSummaryEl.textContent = `$${updateTotals().toFixed(2)}`;
         }
 
-        async function fetchAndRenderBills() {
-            historyStatusMessageEl.classList.remove('hidden');
-            historyStatusMessageEl.textContent = 'Fetching bills...';
-            historyStatusMessageEl.classList.add('text-gray-600', 'bg-gray-100');
-            historyTableBody.innerHTML = '';
-            fetchBillsBtn.disabled = true;
-
-            try {
-                if (googleSheetsApiUrl === 'YOUR_GOOGLE_SHEETS_API_URL_HERE') {
-                    throw new Error("Google Sheets API URL is not configured. Please follow the instructions in the code.");
-                }
-                const response = await fetch(googleSheetsApiUrl);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const bills = await response.json();
-                
-                if (bills.length === 0) {
-                    historyStatusMessageEl.textContent = 'No bills found.';
-                    historyStatusMessageEl.classList.remove('text-gray-600', 'bg-gray-100');
-                } else {
-                    bills.forEach(bill => {
-                        const row = document.createElement('tr');
-                        
-                        // Parse the formattedItems string into a readable list
-                        const itemsList = bill.ItemsOrdered.split(', ').map(item => `<li>${item}</li>`).join('');
-                        
-                        row.innerHTML = `
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${new Date(bill.OrderDate).toLocaleDateString()}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${bill.CustomerName}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><ul class="list-disc pl-5">${itemsList}</ul></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$${parseFloat(bill.Total).toFixed(2)}</td>
-                        `;
-                        historyTableBody.appendChild(row);
-                    });
-                    historyStatusMessageEl.classList.add('hidden');
-                }
-            } catch (error) {
-                console.error('Error fetching bills:', error);
-                historyStatusMessageEl.textContent = `Error fetching bills: ${error.message}`;
-                historyStatusMessageEl.classList.remove('text-gray-600', 'bg-gray-100');
-                historyStatusMessageEl.classList.add('bg-red-100', 'text-red-700');
-            } finally {
-                fetchBillsBtn.disabled = false;
-            }
-        }
+        
 
         // Event Listeners
         loginForm.addEventListener('submit', (e) => {
@@ -408,13 +340,12 @@
             showScreen('login');
         });
         
-        showHistoryBtn.addEventListener('click', () => {
-            showScreen('history');
-        });
         
-        backToMainBtn.addEventListener('click', () => {
-            showScreen('order');
-        });
+        
+        
+        
+        
+        
 
         donutMenu.addEventListener('click', (e) => {
             const btn = e.target.closest('.quantity-btn');
@@ -520,7 +451,7 @@
             }
         });
 
-        fetchBillsBtn.addEventListener('click', fetchAndRenderBills);
+        
         
         // Initial setup
         document.addEventListener('DOMContentLoaded', () => {
